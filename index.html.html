@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Viborita Viborona</title>
+  <style>
+    body {
+      background: linear-gradient(45deg, #0a0a0a, #1a1a1a);
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #fff;
+      font-family: monospace;
+      flex-direction: column;
+    }
+    canvas {
+      background: #111;
+      border: 3px solid #0ff;
+      display: none;
+    }
+    #menu, #gameOver {
+      text-align: center;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background: #0ff;
+      color: #000;
+    }
+    #score {
+      margin-bottom: 10px;
+      font-size: 1.2rem;
+    }
+    footer {
+      position: fixed;
+      bottom: 10px;
+      text-align: center;
+      width: 100%;
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="menu">
+    <h1>🐍 Viborita Viborona</h1>
+    <p>Selecciona nivel:</p>
+    <button onclick="startGame(8)">Fácil</button>
+    <button onclick="startGame(12)">Normal</button>
+    <button onclick="startGame(18)">Demente</button>
+  </div>
+
+  <div id="score" style="display:none;">Puntaje: 0</div>
+  <canvas id="game" width="600" height="600"></canvas>
+
+  <div id="gameOver" style="display:none;">
+    <h2>💀 Game Over</h2>
+    <p>Puntaje final: <span id="finalScore"></span></p>
+    <button onclick="resetMenu()">Volver al menú</button>
+  </div>
+
+  <footer>
+    <p>Proyecto Final - Calidad de Software - Cristian Villacis - Gabriel Quijije - 2025 - ©</p>
+  </footer>
+
+  <script>
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    const box = 30;
+    let snake, food, direction, score, speed, frame, lastTime;
+
+    const scoreDisplay = document.getElementById('score');
+    const menu = document.getElementById('menu');
+    const gameOverScreen = document.getElementById('gameOver');
+    const finalScore = document.getElementById('finalScore');
+
+    document.addEventListener('keydown', e => {
+      const key = e.key.toLowerCase();
+      if ((key === 'arrowup' || key === 'w') && direction !== 'DOWN') direction = 'UP';
+      else if ((key === 'arrowdown' || key === 's') && direction !== 'UP') direction = 'DOWN';
+      else if ((key === 'arrowleft' || key === 'a') && direction !== 'RIGHT') direction = 'LEFT';
+      else if ((key === 'arrowright' || key === 'd') && direction !== 'LEFT') direction = 'RIGHT';
+    });
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < snake.length; i++) {
+        ctx.fillStyle = i === 0 ? '#00ffcc' : '#008866';
+        ctx.fillRect(snake[i].x, snake[i].y, box, box);
+      }
+
+      ctx.fillStyle = '#ff00ff'; // fuccia
+      ctx.fillRect(food.x, food.y, box, box);
+    }
+
+    function update() {
+      if (!direction) return;
+
+      const head = { ...snake[0] };
+      if (direction === 'UP') head.y -= box;
+      if (direction === 'DOWN') head.y += box;
+      if (direction === 'LEFT') head.x -= box;
+      if (direction === 'RIGHT') head.x += box;
+
+      if (
+        head.x < 0 || head.x >= canvas.width ||
+        head.y < 0 || head.y >= canvas.height ||
+        snake.some(seg => seg.x === head.x && seg.y === head.y)
+      ) {
+        finalScore.textContent = score;
+        canvas.style.display = 'none';
+        scoreDisplay.style.display = 'none';
+        gameOverScreen.style.display = 'block';
+        cancelAnimationFrame(frame);
+        return;
+      }
+
+      snake.unshift(head);
+
+      if (head.x === food.x && head.y === food.y) {
+        score++;
+        scoreDisplay.textContent = `Puntaje: ${score}`;
+        food = {
+          x: Math.floor(Math.random() * (canvas.width / box)) * box,
+          y: Math.floor(Math.random() * (canvas.height / box)) * box
+        };
+      } else {
+        snake.pop();
+      }
+    }
+
+    function loop(timestamp) {
+      if (!lastTime) lastTime = timestamp;
+      const elapsed = timestamp - lastTime;
+
+      if (elapsed > 1000 / speed) {
+        update();
+        draw();
+        lastTime = timestamp;
+      }
+
+      frame = requestAnimationFrame(loop);
+    }
+
+    function startGame(velocidad) {
+      menu.style.display = 'none';
+      canvas.style.display = 'block';
+      scoreDisplay.style.display = 'block';
+      gameOverScreen.style.display = 'none';
+
+      speed = velocidad;
+      direction = null;
+      score = 0;
+      scoreDisplay.textContent = "Puntaje: 0";
+      snake = [{ x: 5 * box, y: 5 * box }];
+      food = {
+        x: Math.floor(Math.random() * (canvas.width / box)) * box,
+        y: Math.floor(Math.random() * (canvas.height / box)) * box
+      };
+      lastTime = 0;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(loop);
+    }
+
+    function resetMenu() {
+      gameOverScreen.style.display = 'none';
+      menu.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
