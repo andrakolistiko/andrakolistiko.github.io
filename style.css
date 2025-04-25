@@ -24,7 +24,7 @@ header h1 {
 }
 
 header img {
-  width: 150px;
+  width: 50%;
   margin-bottom: 1rem;
 }
 
@@ -79,11 +79,15 @@ footer p {
 }
 
 img {
+  width: 50%;
+
   border-radius: 10px;
   box-shadow: 0 0 10px #ff00ff;
 }
 
 .punk-title {
+  width: 50%;
+
   font-family: 'Impact', sans-serif; /* Tipografía atrevida */
   font-size: 5rem; /* Título grande */
   color: #00FF00; /* Color verde brillante */
@@ -98,6 +102,8 @@ img {
 }
 
 .punk-title::after {
+  width: 50%;
+
   content: "!!!"; /* Añade un detalle extra */
   color: #FF0000; /* Color rojo para resaltar */
   position: absolute;
